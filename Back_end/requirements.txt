@@ -1,0 +1,8 @@
+Flask
+flask-cors
+opencv-python
+face_recognition
+firebase-admin
+numpy
+supabase
+deepface==0.0.78
