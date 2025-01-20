@@ -60,7 +60,8 @@ const Recognition = () => {
             id: data.id,
             distance: data.distance.toFixed(2), // Optional: format distance
 
-            student_data: data.student_data, // added by me :)
+            student_data: data.student_data,
+            emotion :data.emotion 
           });
           setErrorMessage(""); // Clear error message if recognition succeeds
         } else if (data.error) {
@@ -136,12 +137,12 @@ const Recognition = () => {
                 <h2 className="text-xl font-bold mb-4">Detected Information</h2>
                 {capturedInfo ? (
                   <>
-                    {/* <p>
+                    <p>
                       <strong>ID:</strong> {capturedInfo.id}
                     </p>
                     <p>
-                      <strong>Distance:</strong> {capturedInfo.distance}
-                    </p> */}
+                      <strong>Distance:</strong> {capturedInfo.emotion}
+                    </p>
                     <p>
                       <strong>Student Data:</strong>
                     </p>

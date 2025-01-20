@@ -12,6 +12,8 @@ import json
 import os 
 from deepface import DeepFace
 
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -36,7 +38,6 @@ firebase_admin.initialize_app(cred, {
 @app.route('/recognize', methods=['POST'])
 def recognize_face():
     # Load existing encodings
-    # note : this is here because when i delete a user i need to reload the encodings
     encoder_file_path = 'encoderFile.p'
     if os.path.exists(encoder_file_path):
         with open(encoder_file_path, 'rb') as file:
@@ -45,12 +46,9 @@ def recognize_face():
         print(f"Student IDs: {studentIds}")
     else:
         return jsonify({'error': 'No known faces for recognition. The encoder file is empty.'}), 200
-    print("recognize_face")
 
     if not encodeListKnown:
         return jsonify({'error': 'No known faces for recognition. The encoder file is empty.'}), 200
-
-
 
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
@@ -62,7 +60,6 @@ def recognize_face():
     if img is None:
         return jsonify({'error': 'Invalid image format or corrupted file'}), 400
 
-  
     imgS = cv2.resize(img, (0, 0), None, 0.5, 0.5)
     imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)
 
@@ -85,8 +82,20 @@ def recognize_face():
             if student_data:
                 datetime_object = datetime.strptime(student_data['last_attendance_time'],
                                                     "%Y-%m-%d %H:%M:%S")
-
                 secondCounter = (datetime.now()-datetime_object).total_seconds()
+
+                # Use DeepFace to analyze the face
+                try:
+                    analysis = DeepFace.analyze(img, actions=['emotion'], enforce_detection=False)
+                    # Ensure analysis is a dictionary
+                    if isinstance(analysis, list):
+                        analysis = analysis[0]  # Extract the first element if wrapped in a list
+                    
+                    emotion = analysis['emotion']
+                    dominant_emotion = max(emotion, key=emotion.get)
+
+                except Exception as e:
+                    return jsonify({'error': f'Failed to analyze face: {str(e)}'}), 200
 
                 if secondCounter > 10:
                     # Increment Total_attendance
@@ -97,25 +106,37 @@ def recognize_face():
                         datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                     
                     supabase.table('users_main').insert({
-                    'id': student_id,
-                    'name': student_data['name'],
-                    'age': student_data['age'],
-                    'career': student_data['career'],
-                    'total_attendance': student_data['Total_attendance'],
-                    'attendance_time': student_data['last_attendance_time'],
-                    # 'profile_picture': f'{SUPABASE_URL}/storage/v1/object/public/{bucket_name}/{image_name}'
+                        'id': student_id,
+                        'name': student_data['name'],
+                        'age': student_data['age'],
+                        'career': student_data['career'],
+                        'total_attendance': student_data['Total_attendance'],
+                        'attendance_time': student_data['last_attendance_time'],
+                        'Emotion' : dominant_emotion,
+
                     }).execute()
+                    print({
+                    'id': student_id,
+                    'distance': float(faceDis[matchIndex]),
+                    'student_data': student_data,
+                    'emotion': dominant_emotion,
                     
+                        })
+
+
                     return jsonify({
                         'id': student_id,
                         'distance': float(faceDis[matchIndex]),
-                        'student_data': student_data
+                        'student_data': student_data,
+                        'emotion': str(dominant_emotion),
+                        
                     })
 
             else:
                 return jsonify({'error': 'Student data not found in the database'}), 404
 
     return jsonify({'error': 'No match found'}), 200
+
 
 @app.route('/add-user', methods=['POST'])
 def add_user():
