@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
 import { supabase } from './supabaseClient'; // Import the Supabase client
 
 // Register necessary Chart.js components
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
+ChartJS.register(BarElement, CategoryScale, LinearScale);
 
-const LineChart = () => {
+const BarChart = () => {
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
       {
         label: 'Recognition Trends',
         data: [],
-        backgroundColor: 'rgba(75,192,192,0.4)',
-        borderColor: 'rgba(75,192,192,1)',
-        fill: true,
+        backgroundColor: 'rgba(75,192,192,0.6)', // Bar color
+        borderColor: 'rgba(75,192,192,1)', // Bar border color
+        borderWidth: 1, // Border thickness
       },
     ],
   });
@@ -26,7 +26,7 @@ const LineChart = () => {
         // Fetch data from Supabase
         const { data: usersData, error } = await supabase
           .from('users_main') // Replace with your table name
-          .select('id, total_attendance');
+          .select('name, total_attendance');
 
         if (error) {
           console.error('Error fetching data:', error.message);
@@ -34,7 +34,7 @@ const LineChart = () => {
         }
 
         // Transform the data for the chart
-        const labels = usersData.map((user) => user.id); // X-axis: User IDs
+        const labels = usersData.map((user) => user.name); // X-axis: User name
         const attendanceData = usersData.map((user) => user.total_attendance); // Y-axis: Total attendance
 
         // Update chart data
@@ -44,9 +44,9 @@ const LineChart = () => {
             {
               label: 'Recognition Trends',
               data: attendanceData,
-              backgroundColor: 'rgba(75,192,192,0.4)',
-              borderColor: 'rgba(75,192,192,1)',
-              fill: true,
+              backgroundColor: 'rgba(75,192,192,0.6)', // Bar color
+              borderColor: 'rgba(75,192,192,1)', // Bar border color
+              borderWidth: 1, // Border thickness
             },
           ],
         });
@@ -101,11 +101,11 @@ const LineChart = () => {
           Attendance Recognition Trends
         </h2>
         <div className="w-full" style={{ height: '400px' }}> {/* Set a fixed height */}
-          <Line data={chartData} options={chartOptions} />
+          <Bar data={chartData} options={chartOptions} />
         </div>
       </div>
     </div>
   );
 };
 
-export default LineChart;
+export default BarChart;

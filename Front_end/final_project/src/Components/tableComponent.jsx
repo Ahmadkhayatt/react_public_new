@@ -16,7 +16,7 @@ const TableComponent = () => {
     const fetchData = async () => {
       const { data, error } = await supabase
         .from('users_main')
-        .select('id, name, age, career, total_attendance, attendance_time');
+        .select('id, name, age, career, total_attendance, attendance_time , Emotion');
       
       if (error) {
         console.error('Error fetching data:', error);
@@ -36,6 +36,7 @@ const TableComponent = () => {
       { Header: 'Career', accessor: 'career' },
       { Header: 'Total Attendance', accessor: 'total_attendance' },
       { Header: 'Attendance Time', accessor: 'attendance_time' },
+      { Header: 'Emotion', accessor: 'Emotion' },
     ],
     []
   );
