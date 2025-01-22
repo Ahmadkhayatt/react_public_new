@@ -95,7 +95,7 @@ const BarChart = () => {
   };
 
   return (
-    <div className="w-full lg:w-3/4 xl:w-2/3 mx-auto bg-gradient-to-r from-blue-500 to-teal-500 p-8 rounded-lg shadow-2xl">
+    <div className="w-full lg:w-3/4 xl:w-2/3 mx-auto bg-gradient-to-r from-blue-500 to-teal-500 p-8 rounded-lg shadow-2xl mb-4">
       <div className="bg-white p-4 rounded-lg shadow-lg">
         <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
           Attendance Recognition Trends
